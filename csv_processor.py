@@ -90,9 +90,9 @@ class CSVProcessor:
     # `from_file` to classmethod https://docs.python.org/3/library/functions.html#classmethod
 
     @classmethod
-    def from_file(cls, path):
+    def from_file(cls, path, types=None):
         with open(path) as file:
-            return cls(file.read())
+            return cls(file.read(), types)
 
 
 class CSVColumnException(IndexError):
