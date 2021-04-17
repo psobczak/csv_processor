@@ -21,11 +21,6 @@ def multiple_types_csv():
     return "col1,col2,col3\n0,'str3',13.1\n1,'str2',6.2\n2,'str1',7.9\n"
 
 
-@pytest.fixture
-def simple_type_processor():
-    return CSVProcessor("col1,col2,col3\n1,8,3\n4,5,6\n0,5,7\n", types=(int, int, int))
-
-
 def test_sort_without_key(simple_int_csv):
     processor = CSVProcessor(simple_int_csv, types=(int, int, int))
 
