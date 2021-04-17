@@ -25,10 +25,25 @@ class CSVProcessor:
             return False
         return self.header == other.header and self.csv == other.csv
 
+    def __str__(self):
+        headers = ','.join(self.header)
+        rows = ""
+        for row in self.csv:
+            for i, element in enumerate(row):
+                rows += str(element) + ','
+                if i == len(row) - 1:
+                    rows = rows[:-1]
+                    rows += "\n"
+
+        return headers + '\n' + rows
+
     # `sort` - sortuje wiersze, opcjonalny argument `key`, oznacza kolumnę, według której należy sortować
     # NB tutaj i niżej - nagłówek nie jest liczony jako wiersz
     def sort(self, key=None) -> None:
-        sorted(self.csv, key=lambda row: row[key])
+        if key is None:
+            self.csv.sort()
+        else:
+            self.csv.sort(key=lambda row: row[key])
 
     # `top` - zwraca `count` pierwszych wierszy
     def top(self, count: int) -> [[]]:
@@ -40,11 +55,14 @@ class CSVProcessor:
 
     # `get_column` - zwraca listę wszystkich wartości z kolumny o indeksie `column`
     def get_column(self, column: int) -> []:
+        max_column_index = len(self.csv)
+        if column < 0 or column > max_column_index:
+            raise CSVColumnException(1, 2)
         return [value[column] for value in self.csv]
 
     # `get_columns` - zwraca listę list wartości z kolumn o indeksach `columns`
-    def get_columns(self, columns: [int]) -> [[]]:
-        return [row[columns] for row in self.csv]
+    def get_columns(self, *columns) -> [[]]:
+        return [[row[column] for column in columns[0]] for row in self.csv]
 
     # `drop_column` - usuwa kolumnę o indeksie `column` z CSV
     def drop_column(self, column: int) -> None:
@@ -53,15 +71,12 @@ class CSVProcessor:
             del row[column]
 
     # `drop_columns` - usuwa kolumny o indeksach `columns` z CSV
-    def drop_columns(self, columns: [int]) -> None:
-        headers = self.header
-
-        for row in self.csv:
-            for index in columns:
-                del row[index]
+    def drop_columns(self, *columns) -> None:
+        self.csv = [[row[i] for i, _ in enumerate(row) if i not in columns[0]] for row in self.csv]
+        self.header = [header for i, header in enumerate(self.header) if i not in columns[0]]
 
     # `get_rows_by_column_value` - zwraca wszystkie wiersze, które w kolumnie `column` mają wartość `value`
-    def get_rows_by_column_value(self, column: int, value: str) -> [[]]:
+    def get_rows_by_column_value(self, column: int, value) -> [[]]:
         return [row for row in self.csv if row[column] == value]
 
     # Obiekt klasy CSVProcessor ma dać zamienić się na obiekt klasy str poprawnie reprezentujący zawartość pliku CSV
@@ -76,5 +91,13 @@ class CSVProcessor:
 
     @classmethod
     def from_file(cls, path):
-        with open(path, 'r') as file:
+        with open(path) as file:
             return cls(file.read())
+
+
+class CSVColumnException(IndexError):
+    """Exception raised for querying CSV column that is out of bounds"""
+
+    def __init__(self, queried_column, max_column):
+        super().__init__(f"Queried column index - {queried_column}, "
+                         f"is out out bounds. Max column index is {max_column}")
