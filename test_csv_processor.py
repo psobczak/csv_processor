@@ -26,7 +26,7 @@ def simple_type_processor():
     return CSVProcessor("col1,col2,col3\n1,8,3\n4,5,6\n0,5,7\n", types=(int, int, int))
 
 
-def test_sort_without_key(simple_type_processor):
+def test_sort_without_key(simple_int_csv):
     processor = CSVProcessor(simple_int_csv, types=(int, int, int))
 
     processor.sort()
