@@ -5,6 +5,6 @@ if __name__ == '__main__':
     with open('test.csv', 'r') as file:
         csv = CSVProcessor(file.read())
 
-    csv.sort("last")
-
-    # print("ELO")
+        print(csv.csv)
+        csv.sort(0)
+        print(csv.csv)
